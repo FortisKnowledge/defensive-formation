@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ドッジ配置ツール</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b27;
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --green: #00e676;
+    --text: #e8eaf6;
+    --text-dim: #5c6484;
+    --radius: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 10px;
+    min-height: 100vh;
+  }
+
+  /* ════════════════════════════
+     カテゴリ選択画面
+  ════════════════════════════ */
+  #screen-select {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    gap: 32px;
+    padding: 20px;
+  }
+
+  .select-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 13px;
+    letter-spacing: 4px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  .select-logo {
+    font-family: 'Oswald', sans-serif;
+    font-size: 26px;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  .cat-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .cat-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 18px 20px;
+    border-radius: 14px;
+    cursor: pointer;
+    border: 1.5px solid #2a3048;
+    background: var(--surface);
+    transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    text-align: left;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  .cat-btn.official { border-top: 3px solid var(--accent); }
+  .cat-btn.junior   { border-top: 3px solid var(--green); }
+
+  .cat-btn:active {
+    background: #1e2438;
+  }
+
+  .cat-btn .cat-name {
+    font-family: 'Oswald', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+  }
+
+  .cat-btn.official .cat-name { color: var(--accent); }
+  .cat-btn.junior   .cat-name { color: var(--green); }
+
+  .cat-btn .cat-detail {
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 0.5px;
+  }
+
+  /* ════════════════════════════
+     メイン画面
+  ════════════════════════════ */
+  #screen-main { display: none; }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #1f2535;
+    gap: 6px;
+  }
+
+  .header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  header h1 {
+    font-family: 'Oswald', sans-serif;
+    font-size: 15px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  .cat-badge {
+    font-family: 'Oswald', sans-serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    padding: 2px 7px;
+    border-radius: 20px;
+    display: inline-block;
+    align-self: flex-start;
+  }
+
+  .cat-badge.official { background: rgba(0,212,255,0.15); color: var(--accent); }
+  .cat-badge.junior   { background: rgba(0,230,118,0.15); color: var(--green);  }
+
+  .header-btns { display: flex; gap: 6px; }
+
+  .hdr-btn {
+    background: none;
+    border: 1px solid #2a3048;
+    color: var(--text-dim);
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif;
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .section-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  /* 名前カード */
+  #players-wrap { margin-bottom: 12px; }
+
+  #players {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+  }
+
+  .card {
+    padding: 8px 2px;
+    border: 1px solid #1f2535;
+    text-align: center;
+    border-radius: var(--radius);
+    font-size: 13px;
+    background: var(--surface);
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s, box-shadow 0.12s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .card.selected {
+    background: var(--accent);
+    color: #0d1117;
+    font-weight: 700;
+    border-color: var(--accent);
+    box-shadow: 0 0 14px rgba(0,212,255,0.4);
+  }
+
+  .card.used { opacity: 0.28; }
+
+  /* フィールドブロック */
+  .field-block {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #1f2535;
+  }
+
+  .field-block.infield-block  { border-top: 2.5px solid var(--accent); }
+  .field-block.outfield-block { border-top: 2.5px solid var(--accent2); }
+
+  /* 内野スロット */
+  #infield {
+    display: grid;
+    /* JS で列数を動的に設定 */
+    gap: 3px;
+  }
+
+  .slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 1px;
+    border-radius: 6px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.12s, border-color 0.12s;
+    border: 1.5px dashed #2a3048;
+    min-width: 0;
+  }
+
+  .slot .num {
+    font-family: 'Oswald', sans-serif;
+    font-size: 8px;
+    color: var(--text-dim);
+    line-height: 1;
+    margin-bottom: 3px;
+  }
+
+  .slot .name {
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: center;
+    word-break: break-all;
+    max-width: 100%;
+  }
+
+  .slot.empty { background: #0a1520; border-color: #1a2535; }
+  .slot.empty .name { color: #1e3048; font-size: 9px; font-weight: 400; }
+
+  .slot.filled { background: #0a2030; border: 1.5px solid var(--accent); }
+  .slot.filled .num  { color: var(--accent); }
+  .slot.filled .name { color: var(--text); }
+
+  /* 外野スロット */
+  #outfield { display: flex; }
+
+  .slot-out {
+    flex: 1;
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    padding: 10px 12px;
+    border: 1.5px dashed #3a2010;
+    background: #1a0e08;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.12s, border-color 0.12s;
+  }
+
+  .slot-out .num  { font-family: 'Oswald', sans-serif; font-size: 11px; color: var(--text-dim); flex-shrink: 0; }
+  .slot-out .name { font-size: 15px; font-weight: 700; }
+
+  .slot-out.filled { background: #2a1408; border: 1.5px solid var(--accent2); }
+  .slot-out.filled .num { color: var(--accent2); }
+
+  .hint {
+    text-align: center;
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── カテゴリ選択画面 ── -->
+<div id="screen-select">
+  <div>
+    <div class="select-title">Defence Setup</div>
+    <div class="select-logo">⚡ ドッジ配置</div>
+  </div>
+  <div class="cat-buttons">
+    <div class="cat-btn official" onclick="startCategory('official')">
+      <div class="cat-name">OFFICIAL</div>
+      <div class="cat-detail">オフィシャル 12人制　／　内野11 + 外野1</div>
+    </div>
+    <div class="cat-btn junior" onclick="startCategory('junior')">
+      <div class="cat-name">JUNIOR</div>
+      <div class="cat-detail">ジュニア 8人制　／　内野7 + 外野1</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── メイン画面 ── -->
+<div id="screen-main">
+  <header>
+    <div class="header-left">
+      <h1>⚡ Defence Setup</h1>
+      <span id="cat-badge" class="cat-badge"></span>
+    </div>
+    <div class="header-btns">
+      <button class="hdr-btn" onclick="resetAll()">リセット</button>
+      <button class="hdr-btn" onclick="goBack()">← 戻る</button>
+    </div>
+  </header>
+
+  <div id="players-wrap">
+    <div class="section-title">▸ Players</div>
+    <div id="players"></div>
+  </div>
+
+  <div class="field-block infield-block">
+    <div id="infield-title" class="section-title"></div>
+    <div id="infield"></div>
+  </div>
+
+  <div class="field-block outfield-block">
+    <div class="section-title">▸ Outfield — 外野 1</div>
+    <div id="outfield"></div>
+  </div>
+
+  <div class="hint">名前を選んでスロットをタップ　／　スロット同士でも入れ替え可</div>
+</div>
+
+<script>
+const players = [
+  "ひろやす","りょうが","ひびき","ゆうき","みなと","ゆうた",
+  "ふじひな","ふうと","たつや","かいち","ひなた","あきひと",
+  "もとき","たつき","かい","まお"
+].map((name, i) => ({ id: i, name }));
+
+// カテゴリ設定
+const CATEGORIES = {
+  official: { label: "OFFICIAL", infield: 11, total: 12, storageKey: "slots_official" },
+  junior:   { label: "JUNIOR",   infield: 7,  total: 8,  storageKey: "slots_junior"   }
+};
+
+let currentCat = null;  // 'official' | 'junior'
+let slots = [];
+let selectedId = null;
+
+/* ── カテゴリ選択 ── */
+function startCategory(cat) {
+  currentCat = cat;
+  const cfg = CATEGORIES[cat];
+  slots = JSON.parse(localStorage.getItem(cfg.storageKey)) || Array(cfg.total).fill(null);
+  selectedId = null;
+
+  // バッジ
+  const badge = document.getElementById("cat-badge");
+  badge.textContent = cfg.label;
+  badge.className = "cat-badge " + cat;
+
+  // 内野タイトル
+  document.getElementById("infield-title").textContent =
+    `▸ Infield — 内野 ${cfg.infield}`;
+
+  // グリッド列数
+  document.getElementById("infield").style.gridTemplateColumns =
+    `repeat(${cfg.infield}, 1fr)`;
+
+  document.getElementById("screen-select").style.display = "none";
+  document.getElementById("screen-main").style.display   = "block";
+  render();
+}
+
+function goBack() {
+  document.getElementById("screen-main").style.display   = "none";
+  document.getElementById("screen-select").style.display = "flex";
+  currentCat = null;
+}
+
+/* ── データ操作 ── */
+function save() {
+  localStorage.setItem(CATEGORIES[currentCat].storageKey, JSON.stringify(slots));
+}
+
+function resetAll() {
+  if (!confirm("配置をリセットしますか？")) return;
+  slots = Array(CATEGORIES[currentCat].total).fill(null);
+  selectedId = null;
+  save(); render();
+}
+
+function selectPlayer(id) {
+  selectedId = (selectedId === id) ? null : id;
+  render();
+}
+
+function clickSlot(i) {
+  if (selectedId === null) {
+    slots[i] = null;
+  } else {
+    const from   = slots.indexOf(selectedId);
+    const target = slots[i];
+    if (target === null) {
+      if (from !== -1) slots[from] = null;
+      slots[i] = selectedId;
+    } else if (target !== selectedId) {
+      if (from !== -1) slots[from] = target;
+      slots[i] = selectedId;
+    }
+  }
+  selectedId = null;
+  save(); render();
+}
+
+/* ── 描画 ── */
+function render() {
+  const cfg = CATEGORIES[currentCat];
+  const playersDiv  = document.getElementById("players");
+  const infieldDiv  = document.getElementById("infield");
+  const outfieldDiv = document.getElementById("outfield");
+  playersDiv.innerHTML = infieldDiv.innerHTML = outfieldDiv.innerHTML = "";
+
+  /* 名前カード */
+  players.forEach(p => {
+    const div = document.createElement("div");
+    div.className = "card"
+      + (p.id === selectedId   ? " selected" : "")
+      + (slots.includes(p.id) ? " used"     : "");
+    div.textContent = p.name;
+    div.onclick = () => selectPlayer(p.id);
+    playersDiv.appendChild(div);
+  });
+
+  /* 内野スロット */
+  for (let i = 0; i < cfg.infield; i++) {
+    const pid = slots[i];
+    const p   = players.find(x => x.id === pid);
+    const div = document.createElement("div");
+    div.className = "slot " + (p ? "filled" : "empty");
+
+    const numEl  = document.createElement("div"); numEl.className  = "num";  numEl.textContent = i + 1;
+    const nameEl = document.createElement("div"); nameEl.className = "name"; nameEl.textContent = p ? p.name : "－";
+
+    div.appendChild(numEl); div.appendChild(nameEl);
+    div.onclick = () => clickSlot(i);
+    infieldDiv.appendChild(div);
+  }
+
+  /* 外野スロット（最後のインデックス） */
+  const outIdx = cfg.infield; // 例: official=11, junior=7
+  const pid = slots[outIdx];
+  const p   = players.find(x => x.id === pid);
+  const out = document.createElement("div");
+  out.className = "slot-out" + (p ? " filled" : "");
+
+  const numEl  = document.createElement("div"); numEl.className = "num";  numEl.textContent = "外野";
+  const nameEl = document.createElement("div"); nameEl.className = "name"; nameEl.textContent = p ? p.name : "未配置";
+
+  out.appendChild(numEl); out.appendChild(nameEl);
+  out.onclick = () => clickSlot(outIdx);
+  outfieldDiv.appendChild(out);
+}
+</script>
+</body>
+</html>
